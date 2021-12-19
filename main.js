@@ -74,9 +74,10 @@ async function phase2_choices($root, pokes) {
     `;
 
     function renderChoice(poke, n) {
+      const imgScaleFactor = document.body.offsetWidth > 800 ? 2 : 1;
       return `
         <p style="text-align: center">
-          <img src="${poke.spriteUrl}" id="${poke.name}" style="width: ${96 * 2}px; image-rendering: pixelated;" />
+          <img src="${poke.spriteUrl}" id="${poke.name}" style="width: ${96 * imgScaleFactor}px; image-rendering: pixelated;" />
           <br />
           <button onclick="document._phase2Choose('${poke.name}')">${poke.name}</button>
         </p>
@@ -102,6 +103,8 @@ async function phase3_results($root, prefMat, pokes) {
   for (const poke of pokes)
     pokeSpriteUrlByName[poke.name] = poke.spriteUrl;
 
+  const imgStyle = 'style="' + (document.body.offsetWidth < 800 ? `width: ${96 / 2}px;` : '') + '"';
+
   let table = '<table>';
 
   table += '<tr>';
@@ -109,7 +112,7 @@ async function phase3_results($root, prefMat, pokes) {
   const row1 = prefMat[Object.keys(prefMat)[0]];
   for (let j = 0; j < Object.keys(row1).length; j++) {
     const colPokeName = Object.keys(row1).reverse()[j];
-    table += `<td><img src="${pokeSpriteUrlByName[colPokeName]}" /></td>`;
+    table += `<td><img src="${pokeSpriteUrlByName[colPokeName]}" ${imgStyle} /></td>`;
   }
   table += '</tr>';
 
@@ -117,7 +120,7 @@ async function phase3_results($root, prefMat, pokes) {
     const rowPokeName = Object.keys(prefMat)[i];
     const row = prefMat[rowPokeName];
     table += '<tr>';
-    table += `<td><img src="${pokeSpriteUrlByName[rowPokeName]}" /></td>`;
+    table += `<td><img src="${pokeSpriteUrlByName[rowPokeName]}" ${imgStyle} /></td>`;
     for (let j = 0; j < Object.keys(row).length - i - 1; j++) {
       const colPokeName = Object.keys(row).reverse()[j];
       table += '<td>';
@@ -125,7 +128,7 @@ async function phase3_results($root, prefMat, pokes) {
       if (!prefName)
         table += 'n/a';
       else
-        table += `<img src="${pokeSpriteUrlByName[prefName]}" />`;
+        table += `<img src="${pokeSpriteUrlByName[prefName]}" ${imgStyle} />`;
       table += '</td>';
     }
     table += '</tr>';
@@ -137,7 +140,7 @@ async function phase3_results($root, prefMat, pokes) {
 
   $root.innerHTML = `
 
-    <div style="display: flex; text-align: center;">
+    <div style="display: flex; flex-wrap: wrap; text-align: center; justify-content: center;">
       <div>
         <h3>Preference Matrix</h3>
         <br />
@@ -148,7 +151,9 @@ async function phase3_results($root, prefMat, pokes) {
           table tr td:first-child { border-right: 1px solid grey; }
         </style>
       </div>
-      <div style="margin-left: 50px; width: 150px;">
+      <br />
+      <br />
+      <div style="width: 150px; padding: 0 50px;">
         <h3>Properties</h3>
         <br />
         <p>Transitive? ${renderBool(isTransitive)}</p>
